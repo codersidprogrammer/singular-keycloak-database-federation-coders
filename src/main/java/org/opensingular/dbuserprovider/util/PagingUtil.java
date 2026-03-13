@@ -1,21 +1,8 @@
 package org.opensingular.dbuserprovider.util;
 
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.engine.spi.RowSelection;
-import org.opensingular.dbuserprovider.DBUserStorageException;
 import org.opensingular.dbuserprovider.persistence.RDBMS;
 
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class PagingUtil {
-
-    @SuppressWarnings("RegExpRedundantEscape")
-    private static final Pattern SINGLE_QUESTION_MARK_REGEX = Pattern.compile("(^|[^\\?])(\\?)([^\\?]|$)");
-
 
     public static class Pageable {
         private final int firstResult;
@@ -27,48 +14,38 @@ public class PagingUtil {
         }
     }
 
-    public static String formatScriptWithPageable(String query, Pageable pageable, RDBMS RDBMS) {
-
-        final Dialect dialect = RDBMS.getDialect();
-
-        RowSelection rowSelection = new RowSelection();
-        rowSelection.setFetchSize(pageable.maxResults);
-        rowSelection.setFirstRow(pageable.firstResult);
-        rowSelection.setMaxRows(pageable.maxResults);
-
-        String escapedSQL = escapeQuestionMarks(query);
-
-        StringBuilder processedSQL;
-        try {
-            LimitHandler limitHandler = dialect.getLimitHandler();
-            processedSQL = new StringBuilder(limitHandler.processSql(escapedSQL, rowSelection));
-            int                                 col       = 1;
-            PreparedStatementParameterCollector collector = new PreparedStatementParameterCollector();
-            col += limitHandler.bindLimitParametersAtStartOfQuery(rowSelection, collector, col);
-            limitHandler.bindLimitParametersAtEndOfQuery(rowSelection, collector, col);
-
-            Map<Integer, Object> parameters = collector.getParameters();
-            for (int i = 1; i <= parameters.keySet().size(); i++) {
-                Matcher matcher = SINGLE_QUESTION_MARK_REGEX.matcher(processedSQL);
-                if (matcher.find()) {
-                    String str = String.valueOf(parameters.get(i));
-                    processedSQL.replace(matcher.start(2), matcher.end(2), str);
-                }
-            }
-            return unescapeQuestionMarks(processedSQL.toString());
-
-        } catch (SQLException e) {
-            throw new DBUserStorageException(e.getMessage(), e);
+    /**
+     * Appends database-specific pagination clauses to the given SQL query.
+     * <p>
+     * Uses stable, version-appropriate SQL syntax for each RDBMS:
+     * <ul>
+     *   <li>PostgreSQL 10+, MySQL 5.7+: {@code LIMIT … OFFSET …}</li>
+     *   <li>Oracle 12+, SQL Server 2012+, IBM DB2: {@code OFFSET … ROWS FETCH NEXT … ROWS ONLY}</li>
+     * </ul>
+     * Replaces the previous Hibernate-5-only {@code RowSelection} / {@code LimitHandler} approach
+     * which was removed in Hibernate ORM 6.
+     */
+    public static String formatScriptWithPageable(String query, Pageable pageable, RDBMS rdbms) {
+        switch (rdbms) {
+            case ORACLE:
+                // Oracle 12c+ ISO SQL row-limiting clause
+                return query + " OFFSET " + pageable.firstResult
+                        + " ROWS FETCH NEXT " + pageable.maxResults + " ROWS ONLY";
+            case SQL_SERVER:
+                // SQL Server 2012+ — query must already contain ORDER BY
+                return query + " OFFSET " + pageable.firstResult
+                        + " ROWS FETCH NEXT " + pageable.maxResults + " ROWS ONLY";
+            case IBMDB2:
+                // IBM DB2 11.1+ ISO SQL row-limiting clause
+                return query + " OFFSET " + pageable.firstResult
+                        + " ROWS FETCH NEXT " + pageable.maxResults + " ROWS ONLY";
+            case POSTGRESQL:
+            case MYSQL:
+            default:
+                // Standard LIMIT / OFFSET supported by PostgreSQL 10+ and MySQL 5.7+
+                return query + " LIMIT " + pageable.maxResults
+                        + " OFFSET " + pageable.firstResult;
         }
-    }
-
-
-    private static String unescapeQuestionMarks(String sql) {
-        return sql.replaceAll("\\?\\?", "?");
-    }
-
-    private static String escapeQuestionMarks(String sql) {
-        return sql.replaceAll("\\?", "??");
     }
 
 }

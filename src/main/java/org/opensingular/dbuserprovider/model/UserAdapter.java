@@ -7,7 +7,6 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

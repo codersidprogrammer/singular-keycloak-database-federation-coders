@@ -26,6 +26,20 @@
         </dependency>
 
         <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-server-spi-private</artifactId>
+            <version>${keycloak.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-services</artifactId>
+            <version>${keycloak.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>${jboss-logging.version}</version>
@@ -124,7 +138,8 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.4.18.Final</version>
+<!--        <version>5.4.18.Final</version>   DEPRECATED FOR Keycloak 24 -->
+            <version>6.2.47.Final</version>
             <scope>provided</scope>
         </dependency>
 
@@ -176,7 +191,9 @@
 
         <lombok.version>1.18.22</lombok.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
-        <keycloak.version>17.0.1</keycloak.version>
+<!--        <keycloak.version>24.0.5</keycloak.version>-->
+        <keycloak.version>26.5.5</keycloak.version>
+<!--        <keycloak.version>17.0.1</keycloak.version>-->
         <auto-service.version>1.0-rc5</auto-service.version>
         <jboss.home>target/keycloak</jboss.home>
     </properties>
