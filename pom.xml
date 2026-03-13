@@ -74,11 +74,6 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
@@ -135,11 +130,36 @@
             <scope>test</scope>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.hibernate</groupId>-->
+<!--            <artifactId>hibernate-core</artifactId>-->
+<!--&lt;!&ndash;        <version>5.4.18.Final</version>   DEPRECATED FOR Keycloak 24 &ndash;&gt;-->
+<!--            <version>6.2.47.Final</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+<!--        Added for new one -->
+        <!-- ✅ SLF4J — provided -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ✅ Hibernate — provided -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-<!--        <version>5.4.18.Final</version>   DEPRECATED FOR Keycloak 24 -->
             <version>6.2.47.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ✅ commons-lang3 — provided, Keycloak 26 ships 3.14+ -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
             <scope>provided</scope>
         </dependency>
 

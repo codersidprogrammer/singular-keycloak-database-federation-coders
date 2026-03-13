@@ -93,6 +93,8 @@ public class DBUserStorageProviderFactory implements UserStorageProviderFactory<
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
         return ProviderConfigurationBuilder.create()
+
+                // ---- Setting for database usage ----
                                            //DATABASE
                                            .property()
                                            .name("url")
